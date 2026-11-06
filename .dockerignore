@@ -1,0 +1,9 @@
+
+target/
+data/
+.git/
+.gitignore
+.vscode/
+.idea/
+*.log
+*.zip

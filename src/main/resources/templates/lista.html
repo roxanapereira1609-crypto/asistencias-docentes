@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Control de Asistencia - Apoyo Educativo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+            color: #243b53;
+        }
+
+        .contenedor {
+            max-width: 1050px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        .barra-superior {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e6ebf1;
+            margin-bottom: 25px;
+        }
+
+        .marca {
+            font-size: 18px;
+            font-weight: 700;
+            color: #173b68;
+        }
+
+        .usuario {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .usuario-info {
+            font-size: 13px;
+            color: #627d98;
+        }
+
+        .usuario-info strong {
+            color: #173b68;
+        }
+
+        .cerrar-sesion {
+            padding: 9px 14px;
+            background: #f0f3f8;
+            color: #243b53;
+            border: 1px solid #dce3ed;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .cerrar-sesion:hover {
+            background: #e2e9f2;
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b53;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #627d98;
+            margin-bottom: 30px;
+        }
+
+        .resumen {
+            background: #e8f1ff;
+            padding: 18px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #173b68;
+        }
+
+        .boton {
+            display: inline-block;
+            background: linear-gradient(110deg, #173b68, #286ba0);
+            color: white;
+            padding: 11px 17px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .boton:hover {
+            background: #245487;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #243b53;
+            color: white;
+            padding: 13px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #e6ebf1;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #f5f8fc;
+        }
+
+        .acciones {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .boton-editar {
+            background: #e9a23b;
+            color: #202020;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .boton-editar:hover {
+            background: #d68b22;
+        }
+
+        .boton-eliminar {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .boton-eliminar:hover {
+            background: #b02a37;
+        }
+
+        .acciones form,
+        .usuario form {
+            margin: 0;
+        }
+
+        .mensaje {
+            text-align: center;
+            padding: 20px;
+            color: #627d98;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 15px;
+            }
+
+            .contenedor {
+                padding: 20px;
+            }
+
+            .barra-superior {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="contenedor">
+
+        <header class="barra-superior">
+
+            <div class="marca">
+                Apoyo Educativo
+            </div>
+
+            <div class="usuario">
+
+                <div class="usuario-info">
+                    Sesión iniciada como:
+                    <strong sec:authentication="name">Usuario</strong>
+                </div>
+
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="cerrar-sesion">
+                        Cerrar sesión
+                    </button>
+                </form>
+
+            </div>
+
+        </header>
+
+        <h1>Control de Asistencia Docente</h1>
+
+        <p class="subtitulo">
+            Sistema de Apoyo Educativo
+        </p>
+
+        <div class="resumen">
+            <strong>Total de asistencias registradas:</strong>
+            <span th:text="${total}">0</span>
+        </div>
+
+       <a th:href="@{/asistencias/nuevo}"
+   class="boton"
+   sec:authorize="hasAnyRole('ADMIN', 'DOCENTE')">
+    + Registrar nueva asistencia
+</a>
+
+        <div class="tabla-contenedor">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Docente</th>
+                        <th>Fecha</th>
+                        <th>Hora de ingreso</th>
+                        <th>Estado</th>
+                        <th sec:authorize="hasRole('ADMIN')">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="asistencia : ${asistencias}">
+
+                        <td th:text="${asistencia.nombreDocente}">
+                            Nombre del docente
+                        </td>
+
+                        <td th:text="${asistencia.fecha}">
+                            Fecha
+                        </td>
+
+                        <td th:text="${asistencia.horaIngreso}">
+                            Hora
+                        </td>
+
+                        <td th:text="${asistencia.estado}">
+                            Estado
+                        </td>
+
+                        <td sec:authorize="hasRole('ADMIN')">
+
+                            <div class="acciones">
+
+                                <a class="boton-editar"
+                                   th:href="@{/asistencias/editar/{id}(id=${asistencia.id})}">
+                                    Editar
+                                </a>
+
+                                <form
+                                    th:action="@{/asistencias/eliminar/{id}(id=${asistencia.id})}"
+                                    method="post"
+                                    onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta asistencia?');">
+
+                                    <button type="submit" class="boton-eliminar">
+                                        Eliminar
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(asistencias)}">
+                        <td class="mensaje"
+                            th:colspan="${#authorization.expression('hasRole(''ADMIN'')')} ? 5 : 4">
+                            Todavía no hay asistencias registradas.
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
